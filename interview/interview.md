@@ -1,5 +1,17 @@
 # Java 관련 내용 
 
+> 읽어볼 내용들!!! 
+> https://deveric.tistory.com/104
+> https://github.com/binghe819/tech-interview/blob/master/%EC%9E%90%EB%A3%8C%EA%B5%AC%EC%A1%B0/List/ArrayList.md
+> https://github.com/binghe819/TIL/blob/master/JAVA/%EA%B8%B0%ED%83%80/%EC%97%B4%EA%B1%B0%ED%98%95(enum).md
+> 
+> Lv1 내용 관련 자료들
+> https://developerfarm.wordpress.com/2012/02/03/object_calisthenics_summary/
+> https://techcourse.woowahan.com/s/zmAj9jfu/ls/aGd7xPCD
+> https://developerfarm.wordpress.com/2012/02/01/object_calisthenics_10/
+> 
+
+
 <!--
 양식
 <details>
@@ -110,6 +122,81 @@
            * 자바 외 언어로 작성된 네이티브 코드를 위한 메모리 영역이다. 
            
 > 추가 학습할 내용들: 다음에는 힙은 또 몇 가지의 영역으로 나뉘는데... 더 자세히 알아보고 가비지 컬렉터는 또 어떻게 동작을 하는지에 대해서도 알아보자! 
+
+</details>
+
+
+JVM 관련해서는 [마크의 학습로그](https://github.com/binghe819/tech-interview#jvm-gc)를 참고해보자!
+
+<details>
+<summary>Call By Value VS Call By Reference</summary>
+
+프로그래밍 언어들은 메서드 매개변수 호출 방식에는 여러 가지가 있으며 호출 방식은 언어마다 다르게 되어있다. <br>
+C++은 대표적인 Call By Reference를 사용한다. (매개변수를 넘겨주는 행위이기 때문에 Pass by Value, Pass by Reference)
+
+Call By Value는 함수의 인자를 전달할 때 '값을 전달하는 방식'이고 Call By Reference는 '주소를 전달하는 방식'이다. <br>
+결론적으로 자바는 확실하게 `Call By Value` 방식을 사용한다. 
+
+Call By Value는 '값을 전달하는 방식'이며 다르게 말하면 `값만 전달하는 방식`이다. 
+만약 함수 A에서 B로 int 변수를 전달한다고 했을 때, 넘겨받은 B에서 어떤 행동을 하던지 변수에는 변함이 없다. 
+
+[예시]
+![image](https://media.vlpt.us/images/ahnick/post/17de5a63-6c46-46f2-8dc2-b0f3952c67b6/image.png)
+
+이렇게 method_1과 method_2의 두 함수가 존재할 때, method1은 a = 10, b = 5의 값을 넘겨주고 method2는 이 값을 다른 값으로 교체합니다. <br> 
+그 이후 다시 method1에서 이 변수를 출력했을 때 어떤 변화가 생길까? 
+
+![image](https://media.vlpt.us/images/ahnick/post/7f0ef1fd-c9cb-4b81-ac01-5c6429adb875/image.png)
+
+method1에서 a=10, b=5 -> method2에서 a=20, b=10으로 바꿨지만 결과는 a=10,b=5로 처음과 같다! 
+이게 바로 자바가 Call By Value 방식을 사용하기 때문에 나오는 결과이다. 
+
+> 그렇다면 자바의 기본 타입을 제외한 참조 타입에서는 어떤 결과가 나올까?
+
+![image](https://media.vlpt.us/images/ahnick/post/fbc0940e-1b6c-463a-96ec-bb7eff839149/image.png)
+
+결과
+![image](https://media.vlpt.us/images/ahnick/post/b1366ede-070d-45cc-86a9-e243613f1281/image.png)
+
+자바의 대표적인 참조 타입인 String을 사용했을 때 int로 테스트한 것과 동일한 결과가 나온다. 
+
+> String이 아닌 객체를 가지고 테스트를 해보면 어떻게 될까?
+
+![image](https://media.vlpt.us/images/ahnick/post/556ea6a2-6a5d-4307-beeb-393a0a986e9d/image.png)
+
+위의 테스트를 조금 바꿔서, 이번엔 새롭게 선언한 클래스를 가지고 테스트를 해보겠습니다. <br> 
+예상대로라면 아까와 같이 method1의 person은 field 값이 변하지 않아야한다! 
+
+![image](https://media.vlpt.us/images/ahnick/post/c188fe41-8e82-477d-a7d5-1a7a889a65c2/image.png) 
+앗...? 아까와 다른 결과가 나왔다. 
+
+### Reference Type의 동작 원리를 살펴보자... 
+자바에서는 Call By Value 방식을 사용한다고 했다. 그렇다면 int를 전달할 때와 Person을 전달할 때는 어떤 차이가 있었던걸까요? 
+
+![image](https://media.vlpt.us/images/ahnick/post/00259c6c-3f5b-4d3f-8db9-2e33fc45a152/image.png)
+
+자바에서는 Call By Value 방식을 수행할 때, 값을 넘겨받은 메서드에서 **값을 복사하여 새로운 지역 변수에 저장한다**. <br>
+이 때, Method2는 `Method1의 변수를 사용한 것이 아니라, 자신이 새롭게 생성한 지역 변수`에 Method1의 `변수 이름과 변수 값을 복사하여 사용`하는 것이다. 
+
+이 때문에 아무리 Method2에서 A와 B의 값을 바꾸어도 Method1의 A,B에게 영향을 끼칠 수 없습니다. <br> 
+이 A, B는 이름만 같을 뿐 다른 주소를 가지는 별개의 친구들이기 때문이다. (만약 자바가 Call By Reference 방식을 사용한다면 A와 B에 영향을 끼칠 수 있다, 왜냐하면 A와 B는 서로 공유하는 변수이기 때문이다)
+
+이렇게 기본 타입에서의 작동 방식은 명확해졌다. 그럼 좀전의 (Person) 객체에서는 왜 그런 결과가 나왔을까? 
+
+![image](https://media.vlpt.us/images/ahnick/post/160db5c4-0b20-4536-88ea-119d46fe1b01/image.png)
+
+참조 타입은 위와 같은 방식을 사용하기 때문이다. <br>
+`애초에 '참조 타입'인 이유가 Heap Memory 영역에 생성된 객체의 주소값을 참조하기 때문에` '참조타입'이라고 불린다. <br>
+따라서 Method1에서 Method2로 넘겨준건 Person의 주소값이고, Method1이 가지고 있는 주소값과 동일한 주소값을 가지고 이 객체의 상태를 수정하면... 
+
+![image](https://media.vlpt.us/images/ahnick/post/e96c41f3-caac-4fa1-9235-fc0521f3362f/image.png)
+
+결과
+![image](https://media.vlpt.us/images/ahnick/post/b0a79183-1dde-457e-bbb2-919da82ca64c/image.png)
+
+당연히 두 Person은 동일한 주소를 참조하기 때문에 이러한 결과가 나온다. 
+
+
 
 </details>
 
