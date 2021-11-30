@@ -40,6 +40,7 @@ SHA, SHA1 (SHA1은 미국 표준의 메시지 압축 알고리즘이다. SHA는 
 ### 이후 참고할 자료들
 MD, 메시지 변조에 대한 대책 - https://m.blog.naver.com/nttkak/20130240374 
 MD, 메시지 인증 코드 MAC(Message Authentication Code) - https://m.blog.naver.com/nttkak/20130240600
+AES vs SHA 차이 - https://brownbears.tistory.com/73 
 
 </details>
 
