@@ -1,4 +1,5 @@
 # 시스템 구조와 프로그램 실행
+목차: 2-1 System Structure & Programe Execution 1
 
 ![img.png](../../img/컴퓨터시스템의하드웨어구조.png)
 
@@ -131,9 +132,124 @@ interrupt는 HW가 CPU한테 뭔가 정보 교신을 하기 위해 걸어줄 수
 
 
 ---
+목차: 2-2 System Structure & Programe Execution 2
 
-System Structure & Programe Execution 2 강의 보기!! 
+## 동기식 입출력과 비동기식 입출력
 
+* 동기식 입출력 (synchronous I/O)
+  * I/O 요청 후 입출력 작업이 완료된 후에야 제어가 사용자 프로그램에 넘어감. 
+  * Read는 동기식 방식이 자연스러움. 
+  * 구현 방법 1
+    * I/O가 끝날 때까지 CPU를 낭비시킴 
+    * 매시점 하나의 I/O만 일어날 수 있음. 
+  * 구현 방법 2 
+    * I/O가 완료될 때까지 해당 프로그램에게서 CPU를 빼앗음 
+    * I/O 처리를 기다리는 줄에 그 프로그램을 줄세움 
+    * 다른 프로그램에게 CPU를 줌.
+  * 비동기식 입출력 (asynchronous I/O)
+    * I/O가 시작된 후 입출력 작업이 끝나기를 기다리지 않고 제어가 사용자 프로그램에 즉시 넘어감.
+    * Write는 비동기식 방식이 자연스러움.
+
+**두 경우 모두 I/O의 완료는 인터럽트로 알려줌** 
+
+
+![img.png](../../img/동기_비동기_입출력_도식화.png)
+
+
+## DMA (Direct Memory Access) 
+* 빠른 입출력 장치를 메모리에 가까운 속도로 처리하기 위해 사용
+* CPU의 중재 없이 device controller가 device의 buffer storage의 내용을 메모리에 block 단위로 직접 전송
+* 바이트 단위가 아니라 block 단위로 인터럽트를 발생시킴
+
+![img.png](../../img/DMA_.png)
+
+
+## 서로 다른 입출력 명령어 
+* I/O를 수행하는 special instruction에 의해 
+* Memory Mapped I/O에 의해 
+
+
+![img.png](../../img/IO방식_종류.png)
+* 좌측 그림: 메모리 접근하는 Instruction 따로 있고, I/O를 하려면 그 I/O를 하는 Special Instruction에 의해서 I/O를 하게 만든다. (일반적임)
+* 우측 그림: 메모리 주소에 연장 주소를 붙인 뒤, 접근하는 메모리 주소에 따라서 메모리 접근 vs I/O를 하는 접근 (ex. 100번대까지는 메모리, 1000번대는 I/O)
+
+## 저장장치 계층구조
+
+* (그림 상에는 없지만) 사실상 맨 위에 CPU가 있음. 
+* CPU 안에 Register가 있음.
+* (Cache Memory는 컴퓨터 구조 시간에 배움, 운영체제에서는 약간만 언급됌)
+* DRAM으로 구성된 Main Memory가 있고 
+* 그 다음부터는 Secondary Storage 쪽
+* 위로 갈 수록 속도가 빨라지고 대신 단위공간당 가격이 비싸지기 때문에 용량이 적다. 
+* Volatility(=휘발성)
+  * Secondary 영역의 Hard Disk나 Magnetic Tape 등은 비휘발성임. (=전원이 나가도 내용이 사라지지 않음)
+  * DRAM, SRAM(= Cache Memory) or CPU 안의 Register 등은  휘발성이다. 
+* CPU에서 직접 접근할 수 있는 Memory Storage 매체를 `Primary`라고 부름 (Executable = '실행가능하다' 라고도 함)
+* CPU가 직접 접근해서 처리 못하는 것을 `Secondary` 라고 함.
+* CPU가 직접 접근하려면 Byte 단위로 접근이 가능한 매체여야 한다. -> DRAM Memory는 byte 단위로 주소를 매겨서 Byte단위로 접근 할 수 있기 때문에 실행할 수 있음. 
+  * 그에 비해서 Hard Disk는 sector 단위로 접근이 되기 때문에 CPU가 직접 실행할 수 없다.
+* `Caching`: 빠른매체로 정보를 읽어들여서 쓰는 것.
+  * 보통 캐싱은 재사용을 목적으로한다. (처음 요청됐을 때는 어쩔 수 없이 밑에서부터 위로 읽어들여야 함)
+  * 같은 것을 두 번째 요청할 때는 밑에까지 가지않고 이미 위에 읽어온 데이터가 있으면 위에서 바로 읽어갈 수 있다.
+  * 기존에있던 것 중에 새로운 것이 들어오면 기존에 있던 것을 쫓아내야할텐데... 이런 내용은 메모리 관리쪽에서 자세히 다룬다.
+
+![img.png](../../img/storage_structure.png)
+
+
+## 프로그램의 실행 
+
+![img.png](../../img/program_execution.png)
+프로그램은 실행파일 형태로 하드 디스크(= File System)에 저장되어있다.
+그런 실행파일을 실행시키게되면 그게 메모리로 올라가서 `프로세스`가 된다. 그렇게 실행이 된다.
+
+
+![img.png](../../img/program_execution_with_vm.png)
+정확하게는 물리적인 메모리에 바로 올라가는 것이 아니라  중간에 한 단계를 더 거치게되고 그것은 **VM**(Virtual Memory)가 된다.
+각 프로그램이 실행되면 VM에 각 프로그램마다 자기 자신만의 독자적인 주소공간(= Address Space)이 만들어진다. 
+이런 주소공간은 `code`, `data`, `stack` 이런 영역으로 구성이된다. 그래서 모든 프로그램은 이러한 독자적인 주소공간을 가지고 있는데, 
+이것을 물리적인 메모리에 올려서 실행을 시키는 것이다. 커널은 부팅을 하는 순간부터 실행이돼서 메모리에 항상 상주해서 올라가있지만, 
+이러한 사용자 프로그램들은 실행을 시키면 이러한 주소 공간이 생겼다가 이 프로그램을 종료시키면 이게 사라진다. 
+
+하지만 이 프로그램을 실행시켰을 때, 만들어지는 이 주소공간을 물리적인 메모리에 통째로 다 올려놓는 것은 아니다. 
+그러면 메모리가 낭비가되기 때문에 필요한 부분만 물리적 메모리에 올려둔다. 디스크의 swap area에 내려놓게된다.  
+
+(code는 CPU에서 실행할 기계어 코드를 담고 있고, data는 프로그램이 사용하는 자료구조를 담고있음, 
+stack은 함수를 호출하거나 return할 때, 어떤 데이터를 쌓았다가 꺼내가고 이런 용도로 사용한다.  뒤에서 자세히 설명할 예정)
+
+
+> 참고사항) 같은 DISK라도 File System과 Swap area는 전혀 다른 용도이다. 
+> Swap Disk는 전원이 나가면 의미가 없는 정보가된다. (= 휘발성) 
+
+* Swap Disk: Memory 용량의 한계로 Memory 연장공간으로 활용하는 곳 
+* File System: 비휘발성의 용도. 전원이 나가도 내용이 유지되는 그런 용도로 사용.
+
+메모리 주소변환을 해주는 계층이 있음. (VM Address space -> Physical Memory) 
+-> 운영체제가 할 수 있는 것은 아니고, (주소변환을해주는) HW의 지원을 받아서  
+
+## 커널 주소 공간의 내용 
+![img.png](../../img/kernel_address_space_content.png)
+
+* code: 자원관리를 위한 코드, (사용자에게) 편리한 서비스 제공을 위한 코드, 시스템콜(SW), (HW들의) 인터럽트 처리 코드
+* data: CPU, Memory, Disk 를 직접 관리하고 통제함.
+  * PCB는 뒤에 챕터에서 다루게 됌. Process Controller Block의 준말 
+* stack: process마다(=사용자 프로그램마다) kernel stack을 따로  
+
+
+## 사용자 프로그램이 사용하는 함수 
+* 함수 (function) 
+  * 사용자 정의 함수 
+    * 자신의 프로그램에서 정의한 함수 
+    * ex) 사용자 프로세스 A,B Address Space의 code 영역 
+  * 라이브러리 함수
+    * 자신의 프로그램에서 정의하지 않고 갖다 쓴 함수
+    * 자신의 프로그램의 실행 파일에 포함되어 있다. 
+    * ex) 프로세스 A,B Address Space의 code 영역 (사용자 정의 함수와 동일한 위치)
+  * 커널 함수
+    * 운영체제의 프로그램 함수
+    * 커널 함수의 호출 = 시스템 콜 
+    * ex) kernel Address Space의 code 영역
+
+![img.png](../../img/program_execution_order.png)
 
 
 참고) Instruction: 기계어, 명령어 
