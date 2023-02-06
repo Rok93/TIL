@@ -32,7 +32,7 @@ Linked List는 **물리적인 메모리상에서 비연속적으로 저장**이 
 ### Linked List의 데이터 삽입, 삭제 
 
 
-![img.png](../../img/linked_list_삽입.png)
+![img.png](../../../img/linked_list_삽입.png)
 
 [삽입]
 
